@@ -34,14 +34,6 @@ bun run build
 2. `scripts/scrape-achievement-metadata.ts`
 3. `vite build`
 
-Badge assets are intentionally manual one-time updates:
-
-```bash
-bun run assets:badges
-```
-
-This command downloads the fixed Mercenary/Soldier of Fortune/Grizzled Veteran badge images and generates `unknown.png` with ImageMagick from the Mercenary icon + `TF2Build.ttf`.
-
 ## Data Outputs
 
 - `data/achievement-metadata.generated.json`
@@ -60,4 +52,4 @@ Response includes profile summary, badge state, chronological unlocked achieveme
 
 ## License
 
-GPL v3 — see [LICENSE](LICENSE).
+GPL v3 - see [LICENSE](LICENSE).
