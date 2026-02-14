@@ -1,0 +1,118 @@
+:root {
+  --hud-tan-light: 235 226 202;
+  --hud-tan-dark: 117 107 94;
+  --hud-black: 46 43 42;
+  --hud-orange: 145 73 59;
+  --hud-panel: 64 59 52;
+}
+
+@font-face {
+  font-family: "TF2";
+  src: url("/fonts/TF2.ttf") format("truetype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "TF2 Secondary";
+  src: url("/fonts/TF2Secondary.ttf") format("truetype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "TF2 Build";
+  src: url("/fonts/TF2Build.ttf") format("truetype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "TF2 Professor";
+  src: url("/fonts/TF2Professor.ttf") format("truetype");
+  font-display: swap;
+}
+
+.hud-scene {
+  min-height: 100vh;
+  background:
+    linear-gradient(135deg, rgba(46, 43, 42, 0.98), rgba(30, 27, 26, 0.98)),
+    radial-gradient(circle at 20% 20%, rgba(145, 73, 59, 0.2), transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(235, 226, 202, 0.08), transparent 30%);
+  position: relative;
+  overflow: hidden;
+}
+
+.hud-scene::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(rgba(235, 226, 202, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(235, 226, 202, 0.03) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.hud-panel {
+  border: 1px solid rgba(235, 226, 202, 0.28);
+  background: linear-gradient(180deg, rgba(117, 107, 94, 0.4), rgba(46, 43, 42, 0.88));
+  box-shadow: inset 0 0 0 1px rgba(46, 43, 42, 0.8), 0 10px 40px rgba(0, 0, 0, 0.35);
+  border-radius: 3px;
+}
+
+.hud-button {
+  height: 26px;
+  width: 250px;
+  border: 1px solid rgba(46, 43, 42, 0.8);
+  background: linear-gradient(180deg, rgba(117, 107, 94, 0.9), rgba(82, 75, 66, 0.95));
+  color: rgb(var(--hud-black));
+  font-family: "TF2 Build", sans-serif;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  transition: all 120ms ease;
+}
+
+.hud-button:hover,
+.hud-button:focus-visible {
+  background: linear-gradient(180deg, rgba(145, 73, 59, 0.95), rgba(120, 55, 43, 0.95));
+  color: rgb(var(--hud-tan-light));
+  outline: none;
+}
+
+.hud-title {
+  font-family: "TF2 Build", sans-serif;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.hud-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 28px;
+  padding: 0;
+  border-radius: 2px;
+  appearance: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  border: 1px solid rgba(46, 43, 42, 0.8);
+  background: linear-gradient(180deg, rgba(117, 107, 94, 0.9), rgba(82, 75, 66, 0.95));
+  transition: all 120ms ease;
+}
+
+.hud-icon-button img,
+.hud-icon-button svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+.hud-icon-button:hover,
+.hud-icon-button:focus-visible {
+  background: linear-gradient(180deg, rgba(145, 73, 59, 0.95), rgba(120, 55, 43, 0.95));
+  outline: none;
+}
+
+.hud-icon-button:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}

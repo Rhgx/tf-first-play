@@ -1,0 +1,39 @@
+{
+  "name": "tf-first-play",
+  "private": false,
+  "description": "TF2 First Play Date Finder — web port with Bun API, Vite + React frontend, and Steam achievement metadata pipeline",
+  "license": "GPL-3.0-or-later",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -k -n API,WEB -c yellow,cyan \"bun run dev:api\" \"bun run dev:web\"",
+    "dev:web": "vite",
+    "dev:api": "bun run server/index.ts",
+    "build": "bun run build:data && bun run build:web",
+    "build:web": "vite build",
+    "build:data": "bun run scripts/fetch-fonts.ts && bun run scripts/scrape-achievement-metadata.ts",
+    "assets:badges": "bun run scripts/fetch-badge-icons.ts && bun run scripts/generate-unknown-badge.ts",
+    "preview": "vite preview",
+    "test": "bun test server"
+  },
+  "dependencies": {
+    "html-to-image": "^1.11.13",
+    "lucide-react": "^0.564.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "@vitejs/plugin-react": "^5.0.4",
+    "autoprefixer": "^10.4.21",
+    "cheerio": "^1.1.2",
+    "concurrently": "^9.2.1",
+    "p-limit": "^7.1.1",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.5"
+  }
+}
