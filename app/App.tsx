@@ -44,9 +44,18 @@ function App() {
   const [captureGeneratedAtIso, setCaptureGeneratedAtIso] = useState<string>(() => new Date().toISOString());
   const [screenshotStatus, setScreenshotStatus] = useState<{ kind: "info" | "warning" | "error"; message: string } | null>(null);
   const [response, setResponse] = useState<LookupResponse | null>(null);
+  const [dismissedWarnings, setDismissedWarnings] = useState<Set<string>>(new Set());
   const screenshotCardRef = useRef<HTMLDivElement | null>(null);
 
   const warnings = response?.warnings ?? [];
+  const visibleWarnings = useMemo(
+    () => warnings.filter((w) => !dismissedWarnings.has(w)),
+    [warnings, dismissedWarnings]
+  );
+
+  useEffect(() => {
+    setDismissedWarnings(new Set());
+  }, [response]);
 
   const badge = useMemo(() => {
     if (!response) {
@@ -217,16 +226,43 @@ function App() {
       {!isUserPage ? (
         <div className="flex min-h-[75vh] items-center justify-center">
           <div className="w-full space-y-4">
-            {errorMessage && <StatusBanner kind="error" message={errorMessage} />}
+            {errorMessage && (
+              <StatusBanner
+                kind="error"
+                message={errorMessage}
+                onClose={() => setErrorMessage(null)}
+                autoDismissAfter={10000}
+              />
+            )}
             <StartLookupPanel value={input} onChange={setInput} onSubmit={submitLookup} isLoading={isLoading} />
           </div>
         </div>
       ) : response ? (
         <div className="mt-8 space-y-5 animate-fade-in-up">
-          {screenshotStatus && <StatusBanner kind={screenshotStatus.kind} message={screenshotStatus.message} />}
-          {errorMessage && <StatusBanner kind="error" message={errorMessage} />}
-          {warnings.map((warning) => (
-            <StatusBanner key={warning} kind="warning" message={warning} />
+          {screenshotStatus && (
+            <StatusBanner
+              kind={screenshotStatus.kind}
+              message={screenshotStatus.message}
+              onClose={() => setScreenshotStatus(null)}
+              autoDismissAfter={10000}
+            />
+          )}
+          {errorMessage && (
+            <StatusBanner
+              kind="error"
+              message={errorMessage}
+              onClose={() => setErrorMessage(null)}
+              autoDismissAfter={10000}
+            />
+          )}
+          {visibleWarnings.map((warning) => (
+            <StatusBanner
+              key={warning}
+              kind="warning"
+              message={warning}
+              onClose={() => setDismissedWarnings((s) => new Set(s).add(warning))}
+              autoDismissAfter={10000}
+            />
           ))}
 
           <ProfileHeader profile={response.profile} onBack={goBackToStart} onScreenshot={takeScreenshot} isCapturing={isCapturing} />
