@@ -14,20 +14,20 @@ export function StartLookupPanel({ value, isLoading, onChange, onSubmit }: Start
   }
 
   return (
-    <section className="hud-panel mx-auto max-w-[720px] p-6 md:p-8">
-      <h2 className="hud-title text-xl text-hud-tanLight md:text-2xl">Start Lookup</h2>
-      <p className="mt-2 text-sm text-hud-tanLight/75">
+    <section className="hud-panel mx-auto max-w-[920px] p-8 md:p-10">
+      <h2 className="hud-title text-2xl text-hud-tanLight md:text-3xl">Start Lookup</h2>
+      <p className="mt-3 text-base text-hud-tanLight/75">
         Enter a Steam64 ID, vanity URL, or profile URL to load badge and achievement timeline data.
       </p>
 
-      <form className="mt-5 space-y-3" onSubmit={handleSubmit}>
+      <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
         <input
-          className="w-full border border-hud-tanDark/80 bg-black/35 px-3 py-3 text-sm text-hud-tanLight placeholder:text-hud-tanLight/45 focus:border-hud-orange focus:outline-none"
+          className="w-full border border-hud-tanDark/80 bg-black/35 px-4 py-4 text-base text-hud-tanLight placeholder:text-hud-tanLight/45 focus:border-hud-orange focus:outline-none"
           value={value}
           onChange={(event) => onChange(event.target.value)}
           placeholder="Steam64 ID, vanity, or profile URL"
         />
-        <button className="hud-button mx-auto block text-sm" type="submit" disabled={isLoading}>
+        <button className="hud-button mx-auto block text-base" type="submit" disabled={isLoading}>
           {isLoading ? "Scanning..." : "Find Player"}
         </button>
       </form>

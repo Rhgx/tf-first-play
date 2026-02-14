@@ -222,7 +222,7 @@ function App() {
           </div>
         </div>
       ) : response ? (
-        <div className="mt-6 space-y-4">
+        <div className="mt-8 space-y-5">
           {screenshotStatus && <StatusBanner kind={screenshotStatus.kind} message={screenshotStatus.message} />}
           {errorMessage && <StatusBanner kind="error" message={errorMessage} />}
           {warnings.map((warning) => (

@@ -10,5 +10,5 @@ const kindStyles: Record<StatusBannerProps["kind"], string> = {
 };
 
 export function StatusBanner({ kind, message }: StatusBannerProps) {
-  return <div className={`hud-panel border px-3 py-2 text-sm ${kindStyles[kind]}`}>{message}</div>;
+  return <div className={`hud-panel border px-4 py-3 text-base ${kindStyles[kind]}`}>{message}</div>;
 }
