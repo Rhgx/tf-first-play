@@ -39,3 +39,5 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # generated build data (run `bun run build` to create)
 data/*.generated.json
+.vercel
+.env*.local

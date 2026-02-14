@@ -17,7 +17,7 @@ export function BadgePanel({ badge }: BadgePanelProps) {
   const shouldShowReason = Boolean(badge.reason) && (!badge.found || !badge.hireDateIso);
 
   return (
-    <section className="hud-panel p-6">
+    <section className="hud-panel animate-fade-in opacity-0 p-6" style={{ animationDelay: "0.1s" }}>
       <h2 className="hud-title text-xl">Mercenary Badge</h2>
       <div className="mt-4 flex flex-col gap-5 sm:flex-row">
         <img

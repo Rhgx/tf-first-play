@@ -222,7 +222,7 @@ function App() {
           </div>
         </div>
       ) : response ? (
-        <div className="mt-8 space-y-5">
+        <div className="mt-8 space-y-5 animate-fade-in-up">
           {screenshotStatus && <StatusBanner kind={screenshotStatus.kind} message={screenshotStatus.message} />}
           {errorMessage && <StatusBanner kind="error" message={errorMessage} />}
           {warnings.map((warning) => (

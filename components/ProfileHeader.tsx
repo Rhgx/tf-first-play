@@ -42,7 +42,7 @@ export function ProfileHeader({ profile, onBack, onScreenshot, isCapturing }: Pr
   }
 
   return (
-    <section className="hud-panel p-6">
+    <section className="hud-panel animate-fade-in opacity-0 p-6" style={{ animationDelay: "0.05s" }}>
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-5">
           <img
