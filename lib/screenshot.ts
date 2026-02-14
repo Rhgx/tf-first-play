@@ -134,7 +134,7 @@ async function inlineImageSources(node: HTMLElement): Promise<() => void> {
   };
 }
 
-function triggerDownload(blob: Blob, fileName: string): boolean {
+export function triggerDownload(blob: Blob, fileName: string): boolean {
   const objectUrl = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = objectUrl;
@@ -147,7 +147,7 @@ function triggerDownload(blob: Blob, fileName: string): boolean {
   return true;
 }
 
-async function tryClipboardCopy(blob: Blob): Promise<boolean> {
+export async function tryClipboardCopy(blob: Blob): Promise<boolean> {
   if (!navigator.clipboard || typeof ClipboardItem === "undefined") {
     return false;
   }
@@ -196,8 +196,8 @@ export async function captureShareCard(
     throw new Error("Failed to generate screenshot image");
   }
 
-  const copied = await tryClipboardCopy(blob);
   const fileName = makeFileName(steamId, generatedAtIso);
+  const copied = await tryClipboardCopy(blob);
   const downloaded = triggerDownload(blob, fileName);
 
   return {
@@ -205,4 +205,47 @@ export async function captureShareCard(
     downloaded,
     fileName,
   };
+}
+
+export interface CaptureBlobResult {
+  blob: Blob;
+  fileName: string;
+}
+
+/** Captures the share card as a PNG blob and filename, without copying or downloading. */
+export async function captureShareCardBlob(
+  node: HTMLElement,
+  steamId: string,
+  generatedAtIso: string,
+): Promise<CaptureBlobResult> {
+  if ("fonts" in document) {
+    await document.fonts.ready;
+  }
+  await waitForImageElements(node);
+
+  const restoreImages = await inlineImageSources(node);
+
+  const fontEmbedCSS = await buildFontEmbedCSS();
+  const width = node.scrollWidth;
+  const height = node.scrollHeight;
+
+  let blob: Blob | null;
+  try {
+    blob = await toBlob(node, {
+      backgroundColor: "#2e2b2a",
+      width,
+      height,
+      pixelRatio: 2,
+      fontEmbedCSS,
+    });
+  } finally {
+    restoreImages();
+  }
+
+  if (!blob) {
+    throw new Error("Failed to generate screenshot image");
+  }
+
+  const fileName = makeFileName(steamId, generatedAtIso);
+  return { blob, fileName };
 }

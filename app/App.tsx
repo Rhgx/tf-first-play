@@ -10,7 +10,8 @@ import { BadgePanel } from "@/components/BadgePanel";
 import { AchievementsTimeline } from "@/components/AchievementsTimeline";
 import { StatusBanner } from "@/components/StatusBanner";
 import { ScreenshotCard } from "@/components/ScreenshotCard";
-import { captureShareCard } from "@/lib/screenshot";
+import { ScreenshotModal } from "@/components/ScreenshotModal";
+import { captureShareCardBlob, tryClipboardCopy, triggerDownload } from "@/lib/screenshot";
 import { toProxyImageUrl } from "@/lib/url";
 
 const defaultBadge: LookupResponse["badge"] = {
@@ -43,9 +44,21 @@ function App() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [captureGeneratedAtIso, setCaptureGeneratedAtIso] = useState<string>(() => new Date().toISOString());
   const [screenshotStatus, setScreenshotStatus] = useState<{ kind: "info" | "warning" | "error"; message: string } | null>(null);
+  const [screenshotModal, setScreenshotModal] = useState<{
+    blob: Blob;
+    objectUrl: string;
+    fileName: string;
+  } | null>(null);
   const [response, setResponse] = useState<LookupResponse | null>(null);
   const [dismissedWarnings, setDismissedWarnings] = useState<Set<string>>(new Set());
   const screenshotCardRef = useRef<HTMLDivElement | null>(null);
+
+  function closeScreenshotModal() {
+    if (screenshotModal) {
+      URL.revokeObjectURL(screenshotModal.objectUrl);
+      setScreenshotModal(null);
+    }
+  }
 
   const warnings = response?.warnings ?? [];
   const visibleWarnings = useMemo(
@@ -156,24 +169,13 @@ function App() {
 
     try {
       await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-      const result = await captureShareCard(screenshotCardRef.current, steamId, generatedAtIso);
-
-      if (result.copied && result.downloaded) {
-        setScreenshotStatus({
-          kind: "info",
-          message: `Screenshot copied to clipboard and downloaded as ${result.fileName}.`,
-        });
-      } else if (!result.copied && result.downloaded) {
-        setScreenshotStatus({
-          kind: "warning",
-          message: `Screenshot downloaded as ${result.fileName}. Clipboard copy is not available in this browser.`,
-        });
-      } else {
-        setScreenshotStatus({
-          kind: "warning",
-          message: "Screenshot generated, but download or clipboard copy was incomplete.",
-        });
-      }
+      const { blob, fileName } = await captureShareCardBlob(
+        screenshotCardRef.current,
+        steamId,
+        generatedAtIso,
+      );
+      const objectUrl = URL.createObjectURL(blob);
+      setScreenshotModal({ blob, objectUrl, fileName });
     } catch (error) {
       const message = error instanceof Error ? error.message : "Screenshot generation failed.";
       setScreenshotStatus({
@@ -188,6 +190,7 @@ function App() {
   function goBackToStart() {
     setErrorMessage(null);
     setScreenshotStatus(null);
+    closeScreenshotModal();
     setResponse(null);
     setIsLoading(false);
     window.history.pushState({}, "", "/");
@@ -280,6 +283,16 @@ function App() {
                 />
               </div>
             </div>
+          ) : null}
+
+          {screenshotModal ? (
+            <ScreenshotModal
+              imageUrl={screenshotModal.objectUrl}
+              fileName={screenshotModal.fileName}
+              onCopy={() => tryClipboardCopy(screenshotModal.blob)}
+              onDownload={() => triggerDownload(screenshotModal.blob, screenshotModal.fileName)}
+              onClose={closeScreenshotModal}
+            />
           ) : null}
         </div>
       ) : null}
