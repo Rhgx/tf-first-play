@@ -1,6 +1,5 @@
-import type { AchievementView, LookupResponse } from "../../src/lib/types";
+import type { AchievementView, LookupResponse } from "../../lib/types";
 import type { SteamAchievement } from "./steam";
-import { fileURLToPath } from "node:url";
 import fs from "node:fs/promises";
 import path from "node:path";
 
@@ -21,29 +20,12 @@ const emptyMetadata: MetadataFile = {
   items: {},
 };
 
-const metadataPath = fileURLToPath(
-  new URL("../../data/achievement-metadata.generated.json", import.meta.url),
-);
+
 
 let metadataCache: MetadataFile | null = null;
 
 async function loadMetadata(): Promise<MetadataFile> {
   if (metadataCache) {
-    return metadataCache;
-  }
-
-  if (typeof Bun !== "undefined") {
-    const file = Bun.file(metadataPath);
-    const exists = await file.exists();
-    if (!exists) {
-      metadataCache = emptyMetadata;
-      return metadataCache;
-    }
-    try {
-      metadataCache = (await file.json()) as MetadataFile;
-    } catch {
-      metadataCache = emptyMetadata;
-    }
     return metadataCache;
   }
 

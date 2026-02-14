@@ -1,4 +1,4 @@
-import type { BadgeTier } from "../../src/lib/types";
+import type { BadgeTier } from "../../lib/types";
 
 export interface ItemAttribute {
   defindex: number;

@@ -1,5 +1,5 @@
-import { formatDateTimeGmt } from "../lib/date";
-import type { AchievementView } from "../lib/types";
+import { formatDateTimeGmt } from "@/lib/date";
+import type { AchievementView } from "@/lib/types";
 
 interface AchievementsTimelineProps {
   items: AchievementView[];

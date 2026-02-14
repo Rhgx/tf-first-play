@@ -1,4 +1,4 @@
-import type { BadgeTier, LookupResponse } from "../../src/lib/types";
+import type { BadgeTier, LookupResponse } from "../../lib/types";
 import type { ItemAttribute, SteamItem } from "./steam";
 import { BADGE_DEFINDEX_TO_TIER } from "./steam";
 

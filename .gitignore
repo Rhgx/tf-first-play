@@ -5,6 +5,7 @@ package-lock.json
 # output
 out
 dist
+.next
 *.tgz
 
 # code coverage

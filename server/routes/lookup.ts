@@ -1,4 +1,4 @@
-import type { LookupResponse } from "../../src/lib/types";
+import type { LookupResponse } from "../../lib/types";
 import { ApiError, isApiError, jsonResponse } from "../lib/errors";
 import { detectBadge, createUnknownBadge } from "../lib/badge-detector";
 import { mapUnlockedAchievements } from "../lib/achievement-transform";
@@ -7,7 +7,7 @@ import { parseLookupRequest } from "../lib/validation";
 
 export async function handleLookup(request: Request): Promise<Response> {
   try {
-    const apiKey = Bun.env.STEAM_API_KEY || process.env.STEAM_API_KEY;
+    const apiKey = process.env.STEAM_API_KEY;
     if (!apiKey) {
       throw new ApiError("STEAM_API_KEY is not configured on the API server", 500);
     }

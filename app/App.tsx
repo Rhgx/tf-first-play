@@ -1,15 +1,17 @@
+"use client";
+
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { lookupSteamProfile } from "./lib/api-client";
-import type { LookupResponse } from "./lib/types";
-import { HudShell } from "./components/HudShell";
-import { StartLookupPanel } from "./components/StartLookupPanel";
-import { ProfileHeader } from "./components/ProfileHeader";
-import { BadgePanel } from "./components/BadgePanel";
-import { AchievementsTimeline } from "./components/AchievementsTimeline";
-import { StatusBanner } from "./components/StatusBanner";
-import { ScreenshotCard } from "./components/ScreenshotCard";
-import { captureShareCard } from "./lib/screenshot";
-import { toProxyImageUrl } from "./lib/url";
+import { lookupSteamProfile } from "@/lib/api-client";
+import type { LookupResponse } from "@/lib/types";
+import { HudShell } from "@/components/HudShell";
+import { StartLookupPanel } from "@/components/StartLookupPanel";
+import { ProfileHeader } from "@/components/ProfileHeader";
+import { BadgePanel } from "@/components/BadgePanel";
+import { AchievementsTimeline } from "@/components/AchievementsTimeline";
+import { StatusBanner } from "@/components/StatusBanner";
+import { ScreenshotCard } from "@/components/ScreenshotCard";
+import { captureShareCard } from "@/lib/screenshot";
+import { toProxyImageUrl } from "@/lib/url";
 
 const defaultBadge: LookupResponse["badge"] = {
   found: false,

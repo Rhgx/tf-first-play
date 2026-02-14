@@ -1,5 +1,5 @@
 import { Camera, ArrowLeft } from "lucide-react";
-import type { LookupResponse } from "../lib/types";
+import type { LookupResponse } from "@/lib/types";
 
 interface ProfileHeaderProps {
   profile: LookupResponse["profile"];

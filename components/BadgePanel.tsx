@@ -1,5 +1,5 @@
-import { formatDateTimeGmt } from "../lib/date";
-import type { LookupResponse } from "../lib/types";
+import { formatDateTimeGmt } from "@/lib/date";
+import type { LookupResponse } from "@/lib/types";
 
 interface BadgePanelProps {
   badge: LookupResponse["badge"];
