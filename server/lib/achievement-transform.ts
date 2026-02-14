@@ -1,6 +1,8 @@
 import type { AchievementView, LookupResponse } from "../../src/lib/types";
 import type { SteamAchievement } from "./steam";
 import { fileURLToPath } from "node:url";
+import fs from "node:fs/promises";
+import path from "node:path";
 
 interface MetadataEntry {
   displayName: string;
@@ -14,6 +16,11 @@ interface MetadataFile {
   items: Record<string, MetadataEntry>;
 }
 
+const emptyMetadata: MetadataFile = {
+  generatedAt: new Date(0).toISOString(),
+  items: {},
+};
+
 const metadataPath = fileURLToPath(
   new URL("../../data/achievement-metadata.generated.json", import.meta.url),
 );
@@ -25,17 +32,27 @@ async function loadMetadata(): Promise<MetadataFile> {
     return metadataCache;
   }
 
-  const file = Bun.file(metadataPath);
-  const exists = await file.exists();
-  if (!exists) {
-    metadataCache = { generatedAt: new Date(0).toISOString(), items: {} };
+  if (typeof Bun !== "undefined") {
+    const file = Bun.file(metadataPath);
+    const exists = await file.exists();
+    if (!exists) {
+      metadataCache = emptyMetadata;
+      return metadataCache;
+    }
+    try {
+      metadataCache = (await file.json()) as MetadataFile;
+    } catch {
+      metadataCache = emptyMetadata;
+    }
     return metadataCache;
   }
 
+  const nodePath = path.join(process.cwd(), "data", "achievement-metadata.generated.json");
   try {
-    metadataCache = (await file.json()) as MetadataFile;
+    const content = await fs.readFile(nodePath, "utf-8");
+    metadataCache = JSON.parse(content) as MetadataFile;
   } catch {
-    metadataCache = { generatedAt: new Date(0).toISOString(), items: {} };
+    metadataCache = emptyMetadata;
   }
 
   return metadataCache;
