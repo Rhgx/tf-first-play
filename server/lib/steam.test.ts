@@ -31,7 +31,7 @@ describe("SteamClient", () => {
         ok: true,
         json: () => Promise.resolve({ response: { success: 1, steamid: "76561198012345678" } }),
       } as Response),
-    ) as typeof fetch;
+    ) as unknown as typeof fetch;
 
     const client = new SteamClient(apiKey);
     const steamId = await client.resolveSteamId("gaben");
@@ -44,7 +44,7 @@ describe("SteamClient", () => {
         ok: true,
         json: () => Promise.resolve({ result: { status: 15 } }),
       } as Response),
-    ) as typeof fetch;
+    ) as unknown as typeof fetch;
 
     const client = new SteamClient(apiKey);
     const result = await client.getPlayerItems("76561198012345678");

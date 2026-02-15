@@ -66,13 +66,13 @@ describe("image-proxy", () => {
     });
 
     it("rejects non-image upstream responses", async () => {
-      globalThis.fetch = async () =>
+      globalThis.fetch = (async () =>
         new Response("not-image", {
           status: 200,
           headers: {
             "content-type": "text/plain",
           },
-        });
+        })) as unknown as typeof fetch;
 
       const request = new Request(
         "http://localhost/api/image-proxy?src=https%3A%2F%2Fsteamcdn-a.akamaihd.net%2Fsample.txt",
@@ -82,13 +82,13 @@ describe("image-proxy", () => {
     });
 
     it("returns proxied bytes for valid image responses", async () => {
-      globalThis.fetch = async () =>
+      globalThis.fetch = (async () =>
         new Response(new Uint8Array([137, 80, 78, 71]), {
           status: 200,
           headers: {
             "content-type": "image/png",
           },
-        });
+        })) as unknown as typeof fetch;
 
       const request = new Request(
         "http://localhost/api/image-proxy?src=https%3A%2F%2Fsteamcdn-a.akamaihd.net%2Fsample.png",
@@ -102,13 +102,13 @@ describe("image-proxy", () => {
 
     it("rejects oversized image with 413", async () => {
       const oversizedBody = new ArrayBuffer(MAX_IMAGE_BYTES + 1);
-      globalThis.fetch = async () =>
+      globalThis.fetch = (async () =>
         new Response(oversizedBody, {
           status: 200,
           headers: {
             "content-type": "image/png",
           },
-        });
+        })) as unknown as typeof fetch;
 
       const request = new Request(
         "http://localhost/api/image-proxy?src=https%3A%2F%2Fsteamcdn-a.akamaihd.net%2Flarge.png",
@@ -127,9 +127,9 @@ describe("image-proxy", () => {
     });
 
     it("rejects on fetch abort/timeout with 502", async () => {
-      globalThis.fetch = async () => {
+      globalThis.fetch = (async () => {
         throw new DOMException("The operation was aborted.", "AbortError");
-      };
+      }) as unknown as typeof fetch;
 
       const request = new Request(
         "http://localhost/api/image-proxy?src=https%3A%2F%2Fsteamcdn-a.akamaihd.net%2Fimage.png",

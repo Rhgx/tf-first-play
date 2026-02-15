@@ -47,7 +47,7 @@ export function ScreenshotModal({
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
-        className="hud-panel relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden border border-hud-tanDark/50 shadow-2xl animate-fade-in-up"
+        className="hud-panel relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden border border-hud-tanDark/50 shadow-2xl animate-fade-in-up mx-2 sm:mx-0"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex shrink-0 items-center justify-between border-b border-hud-tanDark/40 px-4 py-3">
@@ -73,7 +73,7 @@ export function ScreenshotModal({
             />
           </div>
 
-          <div className="flex flex-nowrap items-center justify-center gap-3">
+          <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
             <button
               type="button"
               className="hud-button flex h-9 flex-1 items-center justify-center gap-2 px-4 text-sm"

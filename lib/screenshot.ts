@@ -163,57 +163,12 @@ export async function tryClipboardCopy(blob: Blob): Promise<boolean> {
   }
 }
 
-export async function captureShareCard(
-  node: HTMLElement,
-  steamId: string,
-  generatedAtIso: string,
-): Promise<ScreenshotResult> {
-  if ("fonts" in document) {
-    await document.fonts.ready;
-  }
-  await waitForImageElements(node);
-
-  const restoreImages = await inlineImageSources(node);
-
-  const fontEmbedCSS = await buildFontEmbedCSS();
-  const width = node.scrollWidth;
-  const height = node.scrollHeight;
-
-  let blob: Blob | null;
-  try {
-    blob = await toBlob(node, {
-      backgroundColor: "#2e2b2a",
-      width,
-      height,
-      pixelRatio: 2,
-      fontEmbedCSS,
-    });
-  } finally {
-    restoreImages();
-  }
-
-  if (!blob) {
-    throw new Error("Failed to generate screenshot image");
-  }
-
-  const fileName = makeFileName(steamId, generatedAtIso);
-  const copied = await tryClipboardCopy(blob);
-  const downloaded = triggerDownload(blob, fileName);
-
-  return {
-    copied,
-    downloaded,
-    fileName,
-  };
-}
-
 export interface CaptureBlobResult {
   blob: Blob;
   fileName: string;
 }
 
-/** Captures the share card as a PNG blob and filename, without copying or downloading. */
-export async function captureShareCardBlob(
+async function captureShareCardToBlob(
   node: HTMLElement,
   steamId: string,
   generatedAtIso: string,
@@ -248,4 +203,28 @@ export async function captureShareCardBlob(
 
   const fileName = makeFileName(steamId, generatedAtIso);
   return { blob, fileName };
+}
+
+export async function captureShareCard(
+  node: HTMLElement,
+  steamId: string,
+  generatedAtIso: string,
+): Promise<ScreenshotResult> {
+  const { blob, fileName } = await captureShareCardToBlob(node, steamId, generatedAtIso);
+  const copied = await tryClipboardCopy(blob);
+  const downloaded = triggerDownload(blob, fileName);
+  return {
+    copied,
+    downloaded,
+    fileName,
+  };
+}
+
+/** Captures the share card as a PNG blob and filename, without copying or downloading. */
+export async function captureShareCardBlob(
+  node: HTMLElement,
+  steamId: string,
+  generatedAtIso: string,
+): Promise<CaptureBlobResult> {
+  return captureShareCardToBlob(node, steamId, generatedAtIso);
 }

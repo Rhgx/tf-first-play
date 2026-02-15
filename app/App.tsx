@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, lazy, Suspense } from "react";
 import { lookupSteamProfile } from "@/lib/api-client";
 import type { LookupResponse } from "@/lib/types";
 import { HudShell } from "@/components/HudShell";
@@ -10,9 +10,11 @@ import { BadgePanel } from "@/components/BadgePanel";
 import { AchievementsTimeline } from "@/components/AchievementsTimeline";
 import { StatusBanner } from "@/components/StatusBanner";
 import { ScreenshotCard } from "@/components/ScreenshotCard";
-import { ScreenshotModal } from "@/components/ScreenshotModal";
-import { captureShareCardBlob, tryClipboardCopy, triggerDownload } from "@/lib/screenshot";
 import { toProxyImageUrl } from "@/lib/url";
+
+const ScreenshotModal = lazy(() =>
+  import("@/components/ScreenshotModal").then((m) => ({ default: m.ScreenshotModal })),
+);
 
 const defaultBadge: LookupResponse["badge"] = {
   found: false,
@@ -34,11 +36,21 @@ function getUserInputFromPath(pathname: string): string | null {
     return null;
   }
 
-  return decodeURIComponent(suffix);
+  try {
+    return decodeURIComponent(suffix);
+  } catch {
+    return null;
+  }
 }
 
-function App() {
-  const [input, setInput] = useState("");
+interface AppProps {
+  initialData?: LookupResponse | null;
+  initialInput?: string;
+}
+
+function App({ initialData = null, initialInput = "" }: AppProps) {
+  const hadInitialDataRef = useRef(initialData != null);
+  const [input, setInput] = useState(initialInput);
   const [isLoading, setIsLoading] = useState(false);
   const [isCapturing, setIsCapturing] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -49,9 +61,12 @@ function App() {
     objectUrl: string;
     fileName: string;
   } | null>(null);
-  const [response, setResponse] = useState<LookupResponse | null>(null);
+  const [response, setResponse] = useState<LookupResponse | null>(initialData);
   const [dismissedWarnings, setDismissedWarnings] = useState<Set<string>>(new Set());
+  const [screenshotData, setScreenshotData] = useState<LookupResponse | null>(null);
   const screenshotCardRef = useRef<HTMLDivElement | null>(null);
+  const screenshotModuleRef = useRef<typeof import("@/lib/screenshot") | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   function closeScreenshotModal() {
     if (screenshotModal) {
@@ -70,6 +85,8 @@ function App() {
     setDismissedWarnings(new Set());
   }, [response]);
 
+
+
   const badge = useMemo(() => {
     if (!response) {
       return defaultBadge;
@@ -82,32 +99,28 @@ function App() {
     };
   }, [response]);
 
-  const screenshotResponse = useMemo(() => {
-    if (!response) {
-      return null;
-    }
-
+  function buildScreenshotResponse(source: LookupResponse): LookupResponse {
     return {
-      ...response,
-      profile: response.profile
+      ...source,
+      profile: source.profile
         ? {
-            ...response.profile,
-            avatarFull: toProxyImageUrl(response.profile.avatarFull) ?? "/images/badges/unknown.png",
+            ...source.profile,
+            avatarFull: toProxyImageUrl(source.profile.avatarFull) ?? "/images/badges/unknown.png",
           }
         : null,
       badge: {
-        ...response.badge,
-        iconUrl: toProxyImageUrl(response.badge.iconUrl) ?? "/images/badges/unknown.png",
+        ...source.badge,
+        iconUrl: toProxyImageUrl(source.badge.iconUrl) ?? "/images/badges/unknown.png",
       },
       achievements: {
-        ...response.achievements,
-        items: response.achievements.items.map((item) => ({
+        ...source.achievements,
+        items: source.achievements.items.map((item) => ({
           ...item,
           iconUrl: toProxyImageUrl(item.iconUrl) ?? "/images/badges/unknown.png",
         })),
       },
     };
-  }, [response]);
+  }
 
   const performLookup = useCallback(async (rawInput: string, updateUrl: boolean) => {
     const trimmed = rawInput.trim();
@@ -116,12 +129,20 @@ function App() {
       return;
     }
 
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     setIsLoading(true);
     setErrorMessage(null);
     setScreenshotStatus(null);
+    setScreenshotData(null);
 
     try {
-      const result = await lookupSteamProfile(trimmed);
+      const result = await lookupSteamProfile(trimmed, controller.signal);
+      if (controller.signal.aborted) return;
       setResponse(result);
 
       if (updateUrl) {
@@ -129,10 +150,13 @@ function App() {
         window.history.pushState({}, "", `${USER_ROUTE_PREFIX}${encodeURIComponent(suffix)}`);
       }
     } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
       const message = error instanceof Error ? error.message : "Lookup failed.";
       setErrorMessage(message);
     } finally {
-      setIsLoading(false);
+      if (!controller.signal.aborted) {
+        setIsLoading(false);
+      }
     }
   }, []);
 
@@ -154,21 +178,28 @@ function App() {
       return;
     }
 
-    if (!screenshotCardRef.current) {
-      setScreenshotStatus({
-        kind: "error",
-        message: "Screenshot unavailable: capture card is not ready.",
-      });
-      return;
-    }
-
     const generatedAtIso = new Date().toISOString();
     setCaptureGeneratedAtIso(generatedAtIso);
+    const proxiedResponse = buildScreenshotResponse(response);
+    setScreenshotData(proxiedResponse);
     setIsCapturing(true);
     setScreenshotStatus(null);
 
     try {
+      if (!screenshotModuleRef.current) {
+        screenshotModuleRef.current = await import("@/lib/screenshot");
+      }
+      const { captureShareCardBlob } = screenshotModuleRef.current;
       await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+
+      if (!screenshotCardRef.current) {
+        setScreenshotStatus({
+          kind: "error",
+          message: "Screenshot unavailable: capture card is not ready.",
+        });
+        return;
+      }
+
       const { blob, fileName } = await captureShareCardBlob(
         screenshotCardRef.current,
         steamId,
@@ -200,7 +231,9 @@ function App() {
     const routeInput = getUserInputFromPath(window.location.pathname);
     if (routeInput) {
       setInput(routeInput);
-      void performLookup(routeInput, false);
+      if (!hadInitialDataRef.current) {
+        void performLookup(routeInput, false);
+      }
     }
 
     function handlePopState() {
@@ -272,12 +305,12 @@ function App() {
           <BadgePanel badge={badge} />
           <AchievementsTimeline items={response.achievements.items} />
 
-          {screenshotResponse ? (
+          {screenshotData ? (
             <div aria-hidden className="pointer-events-none fixed left-[-99999px] top-0 opacity-0">
               <div ref={screenshotCardRef}>
                 <ScreenshotCard
-                  response={screenshotResponse}
-                  badge={screenshotResponse.badge}
+                  response={screenshotData}
+                  badge={screenshotData.badge}
                   generatedAtIso={captureGeneratedAtIso}
                   routeLabel={routeLabel}
                 />
@@ -286,13 +319,20 @@ function App() {
           ) : null}
 
           {screenshotModal ? (
-            <ScreenshotModal
-              imageUrl={screenshotModal.objectUrl}
-              fileName={screenshotModal.fileName}
-              onCopy={() => tryClipboardCopy(screenshotModal.blob)}
-              onDownload={() => triggerDownload(screenshotModal.blob, screenshotModal.fileName)}
-              onClose={closeScreenshotModal}
-            />
+            <Suspense fallback={null}>
+              <ScreenshotModal
+                imageUrl={screenshotModal.objectUrl}
+                fileName={screenshotModal.fileName}
+                onCopy={() =>
+                  screenshotModuleRef.current?.tryClipboardCopy(screenshotModal.blob) ??
+                  Promise.resolve(false)
+                }
+                onDownload={() =>
+                  screenshotModuleRef.current?.triggerDownload(screenshotModal.blob, screenshotModal.fileName)
+                }
+                onClose={closeScreenshotModal}
+              />
+            </Suspense>
           ) : null}
         </div>
       ) : null}

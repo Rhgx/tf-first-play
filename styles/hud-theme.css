@@ -59,7 +59,8 @@
 
 .hud-button {
   height: 34px;
-  width: 300px;
+  width: 100%;
+  max-width: 300px;
   border: 1px solid rgba(46, 43, 42, 0.8);
   background: linear-gradient(180deg, rgba(117, 107, 94, 0.9), rgba(82, 75, 66, 0.95));
   color: rgb(var(--hud-black));

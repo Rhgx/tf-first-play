@@ -44,14 +44,14 @@ export function ProfileHeader({ profile, onBack, onScreenshot, isCapturing }: Pr
   return (
     <section className="hud-panel animate-fade-in opacity-0 p-6" style={{ animationDelay: "0.05s" }}>
       <div className="flex items-start justify-between gap-4">
-        <div className="flex items-center gap-5">
+        <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-center sm:gap-5">
           <img
             alt={`${profile.personaName} avatar`}
             src={profile.avatarFull}
-            className="h-24 w-24 rounded-sm border border-hud-tanDark/80 object-cover"
+            className="h-16 w-16 rounded-sm border border-hud-tanDark/80 object-cover sm:h-24 sm:w-24"
             referrerPolicy="no-referrer"
           />
-          <div>
+          <div className="text-center sm:text-left">
             <h2 className="hud-title text-2xl">{profile.personaName}</h2>
             <p className="text-base text-hud-tanLight/80">Steam64: {profile.steamId}</p>
             <a href={profile.profileUrl} target="_blank" rel="noreferrer" className="text-base text-hud-orange underline">

@@ -1,6 +1,6 @@
 import type { LookupRequest, LookupResponse } from "./types";
 
-export async function lookupSteamProfile(input: string): Promise<LookupResponse> {
+export async function lookupSteamProfile(input: string, signal?: AbortSignal): Promise<LookupResponse> {
   const payload: LookupRequest = { input };
 
   const response = await fetch("/api/lookup", {
@@ -9,6 +9,7 @@ export async function lookupSteamProfile(input: string): Promise<LookupResponse>
       "Content-Type": "application/json",
     },
     body: JSON.stringify(payload),
+    signal,
   });
 
   const data = (await response.json()) as LookupResponse;

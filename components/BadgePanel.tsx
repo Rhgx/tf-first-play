@@ -23,7 +23,7 @@ export function BadgePanel({ badge }: BadgePanelProps) {
         <img
           src={badge.iconUrl}
           alt={badge.found ? `${title} icon` : "Unknown mercenary badge"}
-          className="h-36 w-36 rounded-sm border border-hud-tanDark/90 bg-black/30 object-contain p-2"
+          className="h-24 w-24 rounded-sm border border-hud-tanDark/90 bg-black/30 object-contain p-2 sm:h-36 sm:w-36"
           referrerPolicy="no-referrer"
         />
         <div className="min-w-0">

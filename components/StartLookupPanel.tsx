@@ -14,7 +14,7 @@ export function StartLookupPanel({ value, isLoading, onChange, onSubmit }: Start
   }
 
   return (
-    <section className="hud-panel mx-auto max-w-[920px] animate-fade-in-up p-8 md:p-10">
+    <section className="hud-panel mx-auto max-w-[920px] animate-fade-in-up p-5 sm:p-8 md:p-10">
       <h2 className="hud-title text-2xl text-hud-tanLight md:text-3xl">Start Lookup</h2>
       <p className="mt-3 text-base text-hud-tanLight/75">
         Enter a Steam64 ID, vanity URL, or profile URL to load badge and achievement timeline data.

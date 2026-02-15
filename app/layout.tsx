@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "@/styles/globals.css";
 import "@/styles/hud-theme.css";
 
@@ -15,9 +16,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <link rel="preload" href="/fonts/TF2Build.ttf" as="font" type="font/ttf" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/TF2Secondary.ttf" as="font" type="font/ttf" crossOrigin="anonymous" />
+      </head>
       <body>
         <div id="root">{children}</div>
+        <SpeedInsights />
       </body>
     </html>
   );
 }
+

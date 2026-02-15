@@ -19,7 +19,7 @@ const EXIT_ANIMATION_MS = 250;
 
 export function StatusBanner({ kind, message, onClose, autoDismissAfter = AUTO_DISMISS_MS }: StatusBannerProps) {
   const [isExiting, setIsExiting] = useState(false);
-  const exitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const exitTimerRef = useRef<number | null>(null);
   const isExitingRef = useRef(false);
 
   const startExit = useCallback(() => {
